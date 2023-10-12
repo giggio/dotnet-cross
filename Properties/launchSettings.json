@@ -1,0 +1,22 @@
+{
+  "profiles": {
+    "dotnet-cross": {
+      "commandName": "Project",
+      "commandLineArgs": "publish -r linux-musl-x64 -t:PublishContainer -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine -p:ContainerImageTag=latest -p:PublishAot=true -p:DebugType=none -c Release",
+      "workingDirectory": "D:\\p\\rabiscos\\net8\\temp3"
+    },
+    "dotnet-cross-help": {
+      "commandName": "Project",
+      "commandLineArgs": "--help"
+    },
+    "dotnet-cross-new": {
+      "commandName": "Project",
+      "commandLineArgs": "new console --force --output \"c:\\temp\\a dir\""
+    },
+    "WSL": {
+      "commandName": "WSL2",
+      "distributionName": "Ubuntu",
+      "commandLineArgs": "publish -r linux-musl-x64 -t:PublishContainer -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine -p:ContainerImageTag=latest -p:PublishAot=true -p:DebugType=none -c Release"
+    }
+  }
+}
