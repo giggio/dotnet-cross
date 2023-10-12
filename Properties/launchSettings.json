@@ -2,6 +2,11 @@
   "profiles": {
     "dotnet-cross": {
       "commandName": "Project",
+      "commandLineArgs": "publish -r linux-musl-x64 -t:PublishContainer -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine -p:ContainerImageTag=latest",
+      "workingDirectory": "D:\\p\\rabiscos\\net8\\temp3"
+    },
+    "dotnet-cross-aot": {
+      "commandName": "Project",
       "commandLineArgs": "publish -r linux-musl-x64 -t:PublishContainer -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine -p:ContainerImageTag=latest -p:PublishAot=true -p:DebugType=none -c Release",
       "workingDirectory": "D:\\p\\rabiscos\\net8\\temp3"
     },
@@ -13,10 +18,27 @@
       "commandName": "Project",
       "commandLineArgs": "new console --force --output \"c:\\temp\\a dir\""
     },
+    "dotnet-cross-linux": {
+      "commandName": "Project",
+      "commandLineArgs": "publish -r linux-musl-x64 -t:PublishContainer -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine -p:ContainerImageTag=latest",
+      "workingDirectory": "/home/giggio/p/rabiscos/temp4"
+    },
     "WSL": {
-      "commandName": "WSL2",
+      "commandName": "WSL",
       "distributionName": "Ubuntu",
-      "commandLineArgs": "publish -r linux-musl-x64 -t:PublishContainer -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine -p:ContainerImageTag=latest -p:PublishAot=true -p:DebugType=none -c Release"
+      "commandLineArgs": "publish -r linux-musl-x64 -t:PublishContainer -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine -p:ContainerImageTag=latest",
+      "environmentVariables": {
+        "NUGET_PACKAGES": "/tmp/nuget/"
+      },
+      "workingDirectory": "/mnt/c/p/dotnet-cross/"
+      //"workingDirectory": "{OutDir}/xxxxx"
+      //"workingDirectory": "{OutDir}"
+    },
+    "WSL-aot": {
+      "commandName": "WSL",
+      "distributionName": "Ubuntu",
+      "commandLineArgs": "publish -r linux-musl-x64 -t:PublishContainer -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine -p:ContainerImageTag=latest -p:PublishAot=true -p:DebugType=none -c Release",
+      "workingDirectory": "/home/giggio/p/rabiscos/temp4"
     }
   }
 }
