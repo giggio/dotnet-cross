@@ -3,20 +3,36 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dotnet-cross", "dotnet-cross.csproj", "{DDE8264B-B15C-4712-A1C1-61C319E9704D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dotnet-cross", "dotnet-cross.csproj", "{DDE8264B-B15C-4712-A1C1-61C319E9704D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{2847F57F-3760-4604-8C7F-BF488B2AE78D}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{9A5BBF7E-98E0-4E27-890B-4CF31AA70663}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".workflows", ".workflows", "{C5E3925A-2771-46E7-8AAD-44905E9C51A5}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build.yml = .github\workflows\build.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{DDE8264B-B15C-4712-A1C1-61C319E9704D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DDE8264B-B15C-4712-A1C1-61C319E9704D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DDE8264B-B15C-4712-A1C1-61C319E9704D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DDE8264B-B15C-4712-A1C1-61C319E9704D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9A5BBF7E-98E0-4E27-890B-4CF31AA70663} = {2847F57F-3760-4604-8C7F-BF488B2AE78D}
+		{C5E3925A-2771-46E7-8AAD-44905E9C51A5} = {9A5BBF7E-98E0-4E27-890B-4CF31AA70663}
 	EndGlobalSection
 EndGlobal
