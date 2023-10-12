@@ -61,7 +61,6 @@ jobs:
           mkdir publish
           cp bin/Release/dotnet-cross.$VERSION.nupkg publish/
           cp bin/Release/dotnet-cross.$VERSION.snupkg publish/
-          find publish/ -printf "%P\n" | tar -cvzf publish/dotnet-cross.tgz --no-recursion -C publish/ -T -
       - name: Publish package to nuget.org
         run: dotnet nuget push bin/Release/dotnet-cross.$VERSION.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
         env:

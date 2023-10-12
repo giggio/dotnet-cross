@@ -1,4 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
+    <Sdk Name="DotNet.ReproducibleBuilds.Isolated" Version="1.1.1" />
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFrameworks>net7.0;net8.0</TargetFrameworks>
@@ -20,6 +21,8 @@
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <DebugType>portable</DebugType>
+        <InvariantGlobalization>true</InvariantGlobalization>
     </PropertyGroup>
     <PropertyGroup>
         <Authors>Giovanni Bassi</Authors>
@@ -27,17 +30,9 @@
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(RuntimeIdentifier)' != ''">
-        <PublishSingleFile>true</PublishSingleFile>
-        <SelfContained>true</SelfContained>
-        <PublishReadyToRun>true</PublishReadyToRun>
-        <PublishTrimmed>true</PublishTrimmed>
-        <TrimmerDefaultAction>link</TrimmerDefaultAction>
-        <InvariantGlobalization>true</InvariantGlobalization>
-    </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Docker.DotNet" Version="3.125.15" />
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
+        <PackageReference Include="DotNet.ReproducibleBuilds" Version="1.1.1">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
@@ -45,6 +40,6 @@
     <ItemGroup>
         <Content Update="appsettings.*.json" CopyToPublishDirectory="Never" Pack="false" />
         <Content Update="appsettings.json" CopyToPublishDirectory="Never" Pack="false" />
-        <None Include="./README.md" Pack="true" PackagePath="\" Visible="false"/>
+        <None Include="./README.md" Pack="true" PackagePath="\" Visible="false" />
     </ItemGroup>
 </Project>
