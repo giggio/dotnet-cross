@@ -27,50 +27,47 @@ if (rid == null)
 const string sdkVersion = "8.0";
 ReadOnlyCollection<Image> imageList = new(
 [
-        new("linux-musl-x64", $"mcr.microsoft.com/dotnet/sdk:{sdkVersion}-alpine", "apk add clang build-base zlib-dev docker-cli")
-    ]
-);
+    new("linux-musl-x64", $"mcr.microsoft.com/dotnet/sdk:{sdkVersion}-alpine", "apk add clang build-base zlib-dev docker-cli"),
+    new("linux-x64", $"mcr.microsoft.com/dotnet/sdk:{sdkVersion}-jammy",
+        "apt-get update && apt-get install -y clang zlib1g-dev curl gnupg",
+        "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg && chmod a+r /etc/apt/keyrings/docker.gpg",
+        """echo "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" > /etc/apt/sources.list.d/docker.list""",
+        "apt-get update && apt-get install -y docker-ce-cli")
+]);
 var images = imageList.ToDictionary(i => i.RID, i => i);
 if (!images.TryGetValue(rid, out var image))
     return Die($"Runtime identifier (RID) not supported: {rid}.");
-using var client = new DockerClientConfiguration().CreateClient();
 var imageTag = $"dotnet-build:{sdkVersion}-{image.RID}";
-if (await ImageDoesNotExistAsync())
-{
-
-#pragma warning disable CA1869
-    var jsonSerializerOptions = new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-#pragma warning restore CA1869
-    WriteLine("Building Docker image...");
-    try
-    {
-        if (!await BuildImageAsync())
-            return 1;
-    }
-    catch (DockerApiException ex)
-    {
-        var message = JsonSerializer.Deserialize<JSONError>(ex.ResponseBody, jsonSerializerOptions)?.Message;
-        return Die("Error building image:", message is not null ? message : ex.ResponseBody);
-    }
-    catch (Exception ex)
-    {
-        Error.WriteLine("Got unexpected error:");
-        return Die(ex.ToString());
-    }
-}
-else
-{
-    WriteLine("Docker image already exists.");
-}
-
-WriteLine("Running dotnet through container.");
-var containerName = await CreateContainerNameAsync();
 var targetIsWindows = rid.StartsWith("win");
-var containerId = await RunContainerAsync();
-if (containerId is null)
-    return 1;
-await client.Containers.RemoveContainerAsync(containerId, new() { Force = true }, cancellationToken);
-WriteLine("Done.");
+using var client = new DockerClientConfiguration().CreateClient();
+try
+{
+    if (await ImageDoesNotExistAsync())
+    {
+        WriteLine("Building Docker image...");
+        if (!await BuildImageAsync())
+            return Die();
+    }
+    else
+    {
+        WriteLine("Docker image already exists.");
+    }
+    WriteLine("Running dotnet through container.");
+    var containerName = await CreateContainerNameAsync();
+    var containerId = await RunContainerAsync(containerName);
+    if (containerId is null)
+        return Die();
+    await client.Containers.RemoveContainerAsync(containerId, new() { Force = true }, cancellationToken);
+    WriteLine("Done.");
+}
+catch (OperationCanceledException)
+{
+    return Die();
+}
+catch (Exception ex)
+{
+    return Die($"Got unexpected error: {ex.Message}.");
+}
 return 0;
 
 static bool TryGetRid(string[] args, out string? rid)
@@ -129,7 +126,7 @@ async Task<int> RunDotnetAsync(string[] args, CancellationToken cancellationToke
         {
             if (!process.HasExited)
                 process.Kill(true);
-            return 1;
+            return Die();
         }
         return process.ExitCode;
     }
@@ -152,43 +149,78 @@ async Task<bool> ImageDoesNotExistAsync()
 
 async Task<bool> BuildImageAsync()
 {
+#pragma warning disable CA1869
+    var jsonSerializerOptions = new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+#pragma warning restore CA1869
+    var buildCommands = image.BuildCommands.Aggregate("", (acc, next) => $"{acc}RUN {next}\n");
     var dockerfile = $""""
 FROM {image.Tag}
 WORKDIR /app
 ENV HOME=/home/user
-RUN {image.BuildCommands}
+{buildCommands}
 RUN mkdir /home/user
 {(OperatingSystem.IsLinux() ? $"RUN chown {Linux.getuid()}:{Linux.getgid()} /home/user" : "# chown only for Linux")}
 """";
-
-    var dockerfileName = $"Dockerfile.dotnet-build_{sdkVersion}-{image.RID}";
-    var dockerfileDirectory = Path.Join(Path.GetTempPath(), "dotnet-build_{sdkVersion}-{image.RID}");
+    const string dockerfileName = "Dockerfile";
+    var dockerfileDirectory = Path.Join(Path.GetTempPath(), $"dotnet-build_{sdkVersion}-{image.RID}");
     var dockerfilePath = Path.Join(dockerfileDirectory, dockerfileName);
-    if (Directory.Exists(dockerfileDirectory))
-        Directory.Delete(dockerfileDirectory, true);
-    Directory.CreateDirectory(dockerfileDirectory);
-    File.WriteAllText(dockerfilePath, dockerfile);
-    var succeeded = true;
-    var buildProgress = new Progress<JSONMessage>(log =>
+    try
     {
-        if (log.Stream != null)
-            WriteLine(log.Stream);
-        if (log.Error != null)
+        if (Directory.Exists(dockerfileDirectory))
+            Directory.Delete(dockerfileDirectory, true);
+        Directory.CreateDirectory(dockerfileDirectory);
+        File.WriteAllText(dockerfilePath, dockerfile);
+        var succeeded = true;
+        var buildProgress = new Progress<JSONMessage>(log =>
         {
-            Error.WriteLine($"error code: {log.Error.Code}, error message: {log.Error.Message}");
-            succeeded = false;
-        }
-    });
-    using var archiveStream = new MemoryStream();
-    TarFile.CreateFromDirectory(sourceDirectoryName: dockerfileDirectory, destination: archiveStream, includeBaseDirectory: false);
-    archiveStream.Position = 0;
-    await client.Images.BuildImageFromDockerfileAsync(new()
+            if (log.Stream != null)
+                Write(log.Stream);
+            if (log.ID != null)
+            {
+                if (log.Status != null)
+                    WriteLine($"{log.ID}: {log.Status}");
+                else
+                    WriteLine(log.ID);
+            }
+            else if (log.Status != null)
+            {
+                WriteLine(log.Status);
+            }
+            if (log.Progress != null)
+                WriteLine(log.Progress);
+            if (log.Error != null)
+            {
+                Error.WriteLine($"error code: {log.Error.Code}, error message: {log.Error.Message}");
+                succeeded = false;
+            }
+        });
+        using var archiveStream = new MemoryStream();
+        TarFile.CreateFromDirectory(sourceDirectoryName: dockerfileDirectory, destination: archiveStream, includeBaseDirectory: false);
+        archiveStream.Position = 0;
+        await client.Images.BuildImageFromDockerfileAsync(new()
+        {
+            Tags = new List<string> { { imageTag } },
+            Dockerfile = dockerfileName
+        },
+        archiveStream, null, null, buildProgress, cancellationToken);
+        return succeeded;
+    }
+    catch (DockerApiException ex)
     {
-        Tags = new List<string> { { imageTag } },
-        Dockerfile = dockerfileName
-    },
-    archiveStream, null, null, buildProgress, cancellationToken);
-    return succeeded;
+        var message = JsonSerializer.Deserialize<JSONError>(ex.ResponseBody, jsonSerializerOptions)?.Message;
+        Die("Error building image:", message is not null ? message : ex.ResponseBody);
+        return false;
+    }
+    catch (TaskCanceledException)
+    {
+        return false;
+    }
+    catch (Exception ex)
+    {
+        Error.WriteLine("Got unexpected error:");
+        Die(ex.ToString());
+        return false;
+    }
 }
 
 async Task<string> CreateContainerNameAsync()
@@ -209,7 +241,7 @@ async Task<string> CreateContainerNameAsync()
     return containerName;
 }
 
-async Task<string?> RunContainerAsync()
+async Task<string?> RunContainerAsync(string containerName)
 {
     var createContainer = await client.Containers.CreateContainerAsync(new(new()
     {
@@ -261,7 +293,7 @@ int Die(params string[] messages)
     return 1;
 }
 
-internal record struct Image(string RID, string Tag, string BuildCommands);
+internal record struct Image(string RID, string Tag, params string[] BuildCommands);
 
 public partial class Program
 {
