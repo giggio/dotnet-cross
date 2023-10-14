@@ -2,17 +2,38 @@
   "profiles": {
     "dotnet-cross": {
       "commandName": "Project",
-      "commandLineArgs": "publish -r linux-musl-x64 --self-contained -t:PublishContainer -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine -p:ContainerImageTag=latest",
+      "commandLineArgs": "publish -c Release -r linux-musl-x64 --self-contained -t:PublishContainer -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine -p:ContainerImageTag=latest",
+      "workingDirectory": "D:\\p\\rabiscos\\net8\\temp3"
+    },
+    "dotnet-cross-win-x64": {
+      // targeting Windows will only work if you use .NET 8+ and don't publish to a container, but you should just use dotnet, not dotnet-cross
+      "commandName": "Project",
+      "commandLineArgs": "publish -c Release -r win-x64 --self-contained",
+      "workingDirectory": "D:\\p\\rabiscos\\net8\\temp3"
+    },
+    "dotnet-cross-os-arch": {
+      "commandName": "Project",
+      "commandLineArgs": "publish -c Release --os linux --arch arm64 --self-contained -t:PublishContainer -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine -p:ContainerImageTag=latest",
       "workingDirectory": "D:\\p\\rabiscos\\net8\\temp3"
     },
     "dotnet-cross-aot": {
       "commandName": "Project",
-      "commandLineArgs": "publish -r linux-musl-x64 --self-contained -t:PublishContainer -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine -p:ContainerImageTag=latest -p:PublishAot=true -p:DebugType=none -c Release",
+      "commandLineArgs": "publish -c Release -r linux-musl-x64 --self-contained -t:PublishContainer -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine -p:ContainerImageTag=latest -p:PublishAot=true -p:DebugType=none",
       "workingDirectory": "D:\\p\\rabiscos\\net8\\temp3"
     },
     "dotnet-cross-x64": {
       "commandName": "Project",
-      "commandLineArgs": "publish -r linux-x64 --self-contained -t:PublishContainer -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-jammy-chiseled -p:ContainerImageTag=latest",
+      "commandLineArgs": "publish -c Release -r linux-x64 --self-contained -t:PublishContainer -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-jammy-chiseled -p:ContainerImageTag=latest",
+      "workingDirectory": "D:\\p\\rabiscos\\net8\\temp3"
+    },
+    "dotnet-cross-x64-arm64": {
+      "commandName": "Project",
+      "commandLineArgs": "publish -c Release --os linux --arch arm64 --self-contained -t:PublishContainer -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-jammy-chiseled -p:ContainerImageTag=latest",
+      "workingDirectory": "D:\\p\\rabiscos\\net8\\temp3"
+    },
+    "dotnet-cross-x64-arm64-aot": {
+      "commandName": "Project",
+      "commandLineArgs": "publish -c Release --os linux --arch arm64 --self-contained -t:PublishContainer -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-jammy-chiseled -p:ContainerImageTag=latest -p:PublishAot=true -p:DebugType=none",
       "workingDirectory": "D:\\p\\rabiscos\\net8\\temp3"
     },
     "dotnet-cross-help": {
@@ -25,24 +46,22 @@
     },
     "dotnet-cross-linux": {
       "commandName": "Project",
-      "commandLineArgs": "publish -r linux-musl-x64 --self-contained -t:PublishContainer -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine -p:ContainerImageTag=latest",
+      "commandLineArgs": "publish -c Release -r linux-musl-x64 --self-contained -t:PublishContainer -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine -p:ContainerImageTag=latest",
       "workingDirectory": "/home/giggio/p/rabiscos/temp4"
     },
     "WSL": {
       "commandName": "WSL",
       "distributionName": "Ubuntu",
-      "commandLineArgs": "publish -r linux-musl-x64 --self-contained -t:PublishContainer -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine -p:ContainerImageTag=latest",
+      "commandLineArgs": "publish -c Release -r linux-musl-x64 --self-contained -t:PublishContainer -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine -p:ContainerImageTag=latest",
       "environmentVariables": {
         "NUGET_PACKAGES": "/tmp/nuget/"
       },
       "workingDirectory": "/mnt/c/p/dotnet-cross/"
-      //"workingDirectory": "{OutDir}/xxxxx"
-      //"workingDirectory": "{OutDir}"
     },
     "WSL-aot": {
       "commandName": "WSL",
       "distributionName": "Ubuntu",
-      "commandLineArgs": "publish -r linux-musl-x64 --self-contained -t:PublishContainer -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine -p:ContainerImageTag=latest -p:PublishAot=true -p:DebugType=none -c Release",
+      "commandLineArgs": "publish -c Release -r linux-musl-x64 --self-contained -t:PublishContainer -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine -p:ContainerImageTag=latest -p:PublishAot=true -p:DebugType=none",
       "workingDirectory": "/home/giggio/p/rabiscos/temp4"
     }
   }
