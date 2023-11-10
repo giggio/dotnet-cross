@@ -8,6 +8,11 @@ using System.Text.RegularExpressions;
 using static System.Console;
 using static Program;
 
+#if DEBUG
+var pwd = Environment.GetEnvironmentVariable("PWD");
+if (!string.IsNullOrWhiteSpace(pwd))
+    Environment.CurrentDirectory = pwd;
+#endif
 var cancellationTokenSource = new CancellationTokenSource();
 var cancellationToken = cancellationTokenSource.Token;
 CancelKeyPress += (_, eventArgs) =>
@@ -218,6 +223,7 @@ async Task<string?> RunContainerAsync(string containerName)
         Image = imageTag,
         Cmd = ["dotnet", .. args],
         User = OperatingSystem.IsLinux() ? $"{Linux.getuid()}:{Linux.getgid()}" : null,
+        Env = ["BaseIntermediateOutputPath=/tmp/obj/"],
         Tty = true,
         AttachStderr = true,
         AttachStdin = false,

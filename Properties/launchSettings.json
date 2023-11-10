@@ -50,19 +50,20 @@
       "workingDirectory": "/home/giggio/p/rabiscos/temp4"
     },
     "WSL": {
-      "commandName": "WSL",
+      "commandName": "WSL2",
       "distributionName": "Ubuntu",
-      "commandLineArgs": "publish -c Release -r linux-musl-x64 --self-contained -t:PublishContainer -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine -p:ContainerImageTag=latest",
+      "commandLineArgs": "dotnet-cross.dll publish -c Release -r linux-musl-x64 --self-contained -t:PublishContainer -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine -p:ContainerImageTag=latest",
       "environmentVariables": {
-        "NUGET_PACKAGES": "/tmp/nuget/"
-      },
-      "workingDirectory": "/mnt/c/p/dotnet-cross/"
+        "PWD": "/home/giggio/p/rabiscos/temp4"
+      }
     },
     "WSL-aot": {
-      "commandName": "WSL",
+      "commandName": "WSL2",
       "distributionName": "Ubuntu",
-      "commandLineArgs": "publish -c Release -r linux-musl-x64 --self-contained -t:PublishContainer -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine -p:ContainerImageTag=latest -p:PublishAot=true -p:DebugType=none",
-      "workingDirectory": "/home/giggio/p/rabiscos/temp4"
+      "commandLineArgs": "dotnet-cross.dll publish -c Release -r linux-musl-x64 --self-contained -t:PublishContainer -p:ContainerBaseImage=mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine -p:ContainerImageTag=latest -p:PublishAot=true -p:DebugType=none",
+      "environmentVariables": {
+        "PWD": "/home/giggio/p/rabiscos/temp4"
+      }
     }
   }
 }
